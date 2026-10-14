@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robux Satın Al</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+    body {
+        background-color: #0a0a0c;
+        color: #ffffff;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: 
+            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size: 50px 50px;
+        background-position: center top;
+        transform: perspective(500px) rotateX(20deg) scale(1.5);
+        transform-origin: top center;
+        z-index: -1;
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+        -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    }
+
+    nav { display: flex; justify-content: flex-end; padding: 20px 40px; max-width: 1200px; margin: 0 auto; }
+
+    .user-pill {
+        display: flex; align-items: center; background-color: #1a1a1d;
+        border-radius: 9999px; padding: 4px 4px 4px 20px; gap: 14px;
+        border: 1px solid #26262a;
+    }
+
+    .robux-balance { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: #ffffff; letter-spacing: -0.2px; }
+
+    .divider { width: 1px; height: 22px; background-color: #2f2f33; }
+
+    .send-btn {
+        display: flex; align-items: center; gap: 8px;
+        background-color: #26262a; color: #ffffff; border: none;
+        font-weight: 700; font-size: 14px; padding: 10px 20px;
+        border-radius: 9999px; cursor: pointer; transition: background 0.2s;
+        font-family: inherit; letter-spacing: -0.2px;
+    }
+    .send-btn:hover { background-color: #32323a; }
+    .send-btn svg { width: 16px; height: 16px; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 0 20px 60px 20px; }
+    .header-section { text-align: center; margin-bottom: 40px; margin-top: 20px; }
+
+    h1 {
+        font-size: 56px; font-weight: 800; line-height: 1.05;
+        margin-bottom: 30px; letter-spacing: -1.5px; color: #ffffff;
+        text-shadow: 0 0 30px rgba(255,255,255,0.08);
+    }
+
+    .subtitle { text-align: left; font-size: 22px; font-weight: 700; margin-bottom: 16px; padding-left: 6px; color: #ffffff; letter-spacing: -0.3px; }
+
+    .card { background-color: #131316; border-radius: 12px; overflow: hidden; border: 1px solid #222226; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+    .item-list { display: flex; flex-direction: column; }
+
+    .item-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 18px 24px; border-bottom: 1px solid #222226; transition: background 0.2s;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row:hover { background-color: #17171b; }
+
+    .left-info { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+    .current-robux {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 24px; font-weight: 800; color: #ffffff;
+        letter-spacing: -0.5px; text-shadow: 0 0 20px rgba(255,255,255,0.15);
+    }
+
+    .old-robux {
+        position: relative; display: inline-flex; align-items: center; gap: 8px;
+        font-size: 17px; font-weight: 700; color: #9a9aa0; letter-spacing: -0.2px;
+    }
+    .old-robux::after {
+        content: ''; position: absolute; left: 0; right: 0; top: 50%;
+        height: 1.5px; background: #9a9aa0; transform: translateY(-50%); pointer-events: none;
+    }
+
+    .more-badge {
+        background-color: #2a2a2f; color: #ffffff; font-size: 13px;
+        font-weight: 700; padding: 5px 12px; border-radius: 7px; letter-spacing: -0.2px;
+    }
+
+    .price-btn {
+        background-color: #2a2a2f; color: #ffffff; border: none;
+        font-size: 16px; font-weight: 700; padding: 14px 0; width: 130px;
+        border-radius: 8px; cursor: pointer; transition: background 0.2s;
+        text-align: center; letter-spacing: -0.2px;
+    }
+    .price-btn:hover { background-color: #3a3a40; }
+
+    .robux-icon { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(255,255,255,0.25)); }
+    .old-robux .robux-icon { width: 18px; height: 18px; filter: none; }
+    .user-pill .robux-icon { width: 20px; height: 20px; filter: none; }
+
+    .send-modal-overlay, .send-amount-overlay {
+        position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        z-index: 10000; display: none; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.2s ease;
+    }
+    .send-modal-overlay.open, .send-amount-overlay.open { display: flex; opacity: 1; }
+
+    .send-modal, .send-amount-modal {
+        width: 100%; max-width: 440px; max-height: 90vh; background: #1a1a1c;
+        border-radius: 16px; border: 1px solid #2a2a2f;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.85); display: flex; flex-direction: column;
+        overflow: hidden; transform: scale(0.95); transition: transform 0.2s ease;
+    }
+    .send-modal-overlay.open .send-modal,
+    .send-amount-overlay.open .send-amount-modal { transform: scale(1); }
+
+    .send-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; gap: 12px; }
+
+    .send-modal-title { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+    .send-modal-title-icon { width: 24px; height: 24px; flex-shrink: 0; }
+    .send-modal-right { display: flex; align-items: center; gap: 14px; }
+
+    .send-modal-balance { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: #ffffff; }
+    .send-modal-balance .robux-icon { width: 18px; height: 18px; filter: none; }
+
+    .send-modal-close, .send-amount-close {
+        background: transparent; border: none; color: #ffffff; font-size: 24px;
+        line-height: 1; cursor: pointer; padding: 0 4px;
+        font-family: inherit; transition: opacity 0.15s;
+    }
+    .send-modal-close:hover, .send-amount-close:hover { opacity: 0.7; }
+
+    .send-modal-body { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+    .send-search {
+        display: flex; align-items: center; gap: 10px;
+        background: transparent; border: 1px solid #2f2f34;
+        border-radius: 9999px; padding: 12px 18px; transition: border-color 0.15s;
+    }
+    .send-search:focus-within { border-color: #4a4a52; }
+    .send-search svg { width: 18px; height: 18px; color: #9a9aa0; flex-shrink: 0; }
+
+    .send-search input {
+        flex: 1; background: transparent; border: none; outline: none;
+        color: #ffffff; font-size: 15px; font-weight: 600; font-family: inherit;
+    }
+    .send-search input::placeholder { color: #77777d; font-weight: 500; }
+
+    .send-section-title { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; color: #ffffff; padding: 0 4px; }
+
+    .send-user-list { display: flex; flex-direction: column; gap: 4px; min-height: 100px; }
+
+    .send-user {
+        display: flex; align-items: center; gap: 14px; padding: 8px 4px;
+        border-radius: 10px; cursor: pointer; transition: background 0.15s;
+    }
+    .send-user:hover { background: #23232a; }
+
+    .send-user-avatar {
+        width: 46px; height: 46px; border-radius: 50%; background: #2a2a2f;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 18px; color: #9a9aa0;
+        overflow: hidden; flex-shrink: 0; border: 2px solid #2a2a2f;
+    }
+    .send-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .send-user-name { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: -0.2px; }
+
+    .send-empty { text-align: center; padding: 24px 12px; color: #77777d; font-size: 14px; font-weight: 600; }
+
+    .send-spinner {
+        width: 28px; height: 28px; border: 3px solid #2a2a2f;
+        border-top-color: #ffffff; border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin: 24px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .send-amount-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 20px; gap: 10px;
+    }
+
+    .send-amount-back {
+        background: transparent; border: none; color: #ffffff;
+        cursor: pointer; padding: 4px; display: flex; align-items: center;
+        transition: opacity 0.15s;
+    }
+    .send-amount-back:hover { opacity: 0.7; }
+    .send-amount-back svg { width: 22px; height: 22px; }
+
+    .send-amount-title {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 19px; font-weight: 800; letter-spacing: -0.4px;
+        flex: 1;
+    }
+    .send-amount-title .robux-icon { width: 22px; height: 22px; filter: none; }
+
+    .send-amount-right { display: flex; align-items: center; gap: 10px; }
+
+    .send-amount-balance {
+        display: flex; align-items: center; gap: 6px;
+        background: #26262a; padding: 6px 14px; border-radius: 9999px;
+        font-size: 13px; font-weight: 700; color: #ffffff;
+    }
+    .send-amount-balance .robux-icon { width: 16px; height: 16px; filter: none; }
+
+    .send-amount-body {
+        padding: 16px 24px 24px 24px;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 20px;
+    }
+
+    .amount-user-avatar {
+        width: 90px; height: 90px; border-radius: 50%;
+        background: #2a2a2f; border: 3px solid #2a2a2f;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 34px; color: #9a9aa0;
+        overflow: hidden; margin-top: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .amount-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .amount-username {
+        font-size: 18px; font-weight: 800; color: #ffffff;
+        letter-spacing: -0.3px; text-align: center;
+        margin-top: -6px;
+    }
+
+    .amount-display {
+        display: flex; align-items: center; gap: 12px;
+        margin: 8px 0;
+    }
+    .amount-display .robux-icon {
+        width: 40px; height: 40px; filter: none;
+    }
+    .amount-display-value {
+        font-size: 60px;
+        font-weight: 900;
+        color: #ffffff;
+        letter-spacing: -2px;
+        line-height: 1;
+        width: 230px;
+        text-align: center;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: inherit;
+        padding: 0;
+    }
+    .amount-display-value::placeholder { color: #3a3a40; }
+
+    .amount-quick {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 10px; width: 100%;
+        margin-top: 4px;
+    }
+
+    .amount-quick-btn {
+        display: flex; align-items: center; justify-content: center; gap: 4px;
+        padding: 12px 0; border-radius: 10px;
+        background: transparent;
+        border: 1.5px solid #2f2f34;
+        color: #ffffff; font-family: inherit;
+        font-size: 14px; font-weight: 700;
+        cursor: pointer; transition: all 0.15s;
+        letter-spacing: -0.2px;
+    }
+    .amount-quick-btn:hover { background: #23232a; border-color: #3f3f48; }
+    .amount-quick-btn.active {
+        background: #23232a;
+        border-color: #ffffff;
+    }
+    .amount-quick-btn .robux-icon {
+        width: 14px; height: 14px; filter: none;
+    }
+
+    .amount-next-btn {
+        width: 100%; padding: 16px;
+        background: #0084ff; color: #ffffff;
+        border: none; border-radius: 12px;
+        font-family: inherit; font-size: 16px; font-weight: 800;
+        cursor: pointer; transition: background 0.15s, transform 0.1s;
+        letter-spacing: -0.2px;
+        margin-top: 4px;
+    }
+    .amount-next-btn:hover { background: #1a91ff; }
+    .amount-next-btn:active { transform: scale(0.98); }
+
+    .amount-hint {
+        font-size: 12px; font-weight: 600;
+        color: #77777d; text-align: center;
+    }
+
+    .send-amount-loading {
+        flex-direction: column; align-items: center; justify-content: center;
+        padding: 60px 24px; gap: 24px;
+    }
+    .loading-dots {
+        display: flex; gap: 10px;
+    }
+    .loading-dots span {
+        width: 14px; height: 14px; border-radius: 50%;
+        background: #ffffff;
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+        40% { transform: scale(1); opacity: 1; }
+    }
+
+    .loading-text {
+        font-size: 15px; font-weight: 700; color: #9a9aa0;
+    }
+
+    .send-amount-success {
+        flex-direction: column; align-items: center; justify-content: center;
+        padding: 40px 24px 24px 24px; gap: 16px;
+    }
+    .success-icon {
+        width: 90px; height: 90px; border-radius: 50%;
+        background: #1f3a22;
+        display: flex; align-items: center; justify-content: center;
+        animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .success-icon svg {
+        width: 48px; height: 48px;
+        stroke: #4ade80; fill: none;
+        stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    @keyframes pop {
+        0% { transform: scale(0); }
+        100% { transform: scale(1); }
+    }
+
+    .success-title {
+        font-size: 26px; font-weight: 900; color: #ffffff;
+        letter-spacing: -0.5px; margin-top: 4px;
+    }
+    .success-subtitle {
+        font-size: 14px; font-weight: 600; color: #9a9aa0;
+        text-align: center; letter-spacing: -0.2px;
+    }
+
+    .success-btn {
+        width: 100%; padding: 16px;
+        background: #0084ff; color: #ffffff;
+        border: none; border-radius: 12px;
+        font-family: inherit; font-size: 16px; font-weight: 800;
+        cursor: pointer; transition: background 0.15s, transform 0.1s;
+        margin-top: 12px;
+    }
+    .success-btn:hover { background: #1a91ff; }
+    .success-btn:active { transform: scale(0.98); }
+
+    .admin-btn { display: none !important; }
+
+    .admin-panel {
+        position: fixed; bottom: 20px; left: 20px; width: 340px;
+        background: #15151a; border: 1px solid #2b2b30; border-radius: 14px;
+        z-index: 9999; display: none; flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7); overflow: hidden;
+    }
+    .admin-panel.open { display: flex; }
+
+    .admin-header {
+        padding: 14px 18px; border-bottom: 1px solid #2b2b30;
+        display: flex; justify-content: space-between; align-items: center;
+        font-weight: 800; font-size: 14px;
+    }
+
+    .admin-close {
+        background: transparent; border: none; color: #888; cursor: pointer;
+        font-size: 20px; padding: 0 4px; line-height: 1; font-family: inherit;
+    }
+    .admin-close:hover { color: #fff; }
+
+    .admin-tabs { display: flex; padding: 0 12px; border-bottom: 1px solid #2b2b30; gap: 4px; }
+
+    .admin-tab {
+        flex: 1; background: transparent; border: none; color: #888;
+        padding: 12px 4px; font-weight: 700; font-size: 12px; cursor: pointer;
+        border-bottom: 2px solid transparent; transition: all 0.15s;
+        font-family: inherit; margin-bottom: -1px;
+    }
+    .admin-tab.active { color: #fff; border-bottom-color: #fff; }
+
+    .admin-body { padding: 16px 18px; overflow-y: auto; max-height: 400px; }
+    .admin-tab-content { display: none; }
+    .admin-tab-content.active { display: block; }
+
+    .admin-label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #aaa; margin-top: 14px; }
+    .admin-label:first-child { margin-top: 0; }
+
+    .admin-input {
+        width: 100%; background: #1c1c1f; border: 1px solid #2b2b30; color: #fff;
+        padding: 10px 12px; border-radius: 8px; font-family: inherit;
+        font-size: 14px; font-weight: 600; outline: none; transition: border 0.15s;
+    }
+    .admin-input:focus { border-color: #555; }
+
+    .admin-file { width: 100%; color: #aaa; font-size: 12px; padding: 8px 0; cursor: pointer; }
+
+    .admin-preview {
+        width: 60px; height: 60px; object-fit: contain; background: #1c1c1f;
+        border-radius: 8px; border: 1px solid #2b2b30; padding: 6px;
+        margin-top: 8px; display: block;
+    }
+
+    .admin-action {
+        flex: 1; background: #2b2b30; color: #fff; border: none; padding: 10px;
+        border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;
+        font-family: inherit; transition: background 0.15s;
+    }
+    .admin-action:hover { background: #3a3a40; }
+    .admin-action.danger { background: #3a1f1f; color: #ff9b9b; }
+    .admin-action.danger:hover { background: #4a2626; }
+    .admin-action.success { background: #1f3a22; color: #9bff9b; }
+    .admin-action.success:hover { background: #264a2b; }
+
+    .admin-btn-row { display: flex; gap: 8px; margin-top: 14px; }
+
+    .row-group {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #2b2b30;
+    }
+    .row-group .full { grid-column: 1 / -1; }
+
+    .admin-hint { font-size: 11px; color: #666; padding: 8px 18px; border-top: 1px solid #2b2b30; text-align: center; }
+
+    .admin-user-item {
+        display: flex; align-items: center; gap: 10px; padding: 8px;
+        background: #1c1c1f; border-radius: 8px; margin-bottom: 6px;
+    }
+    .admin-user-avatar {
+        width: 32px; height: 32px; border-radius: 50%; background: #2b2b30;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800; color: #9a9aa0;
+        overflow: hidden; flex-shrink: 0;
+    }
+    .admin-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .admin-user-name {
+        flex: 1; font-size: 13px; font-weight: 700; color: #fff;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .admin-user-del {
+        background: transparent; border: none; color: #ff6b6b;
+        cursor: pointer; font-size: 16px; padding: 4px 6px;
+        line-height: 1; font-family: inherit;
+    }
+    .admin-user-del:hover { color: #ff9b9b; }
+</style>
+</head>
+<body>
+
+    <nav>
+        <div class="user-pill">
+            <div class="robux-balance">
+                <img class="robux-icon" alt="Robux">
+                <span id="balance-val">0</span>
+            </div>
+            <div class="divider"></div>
+            <button class="send-btn" id="sendBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19V5"></path>
+                    <path d="M6 11l6-6 6 6"></path>
+                    <line x1="7" y1="21" x2="17" y2="21"></line>
+                </svg>
+                Send
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>Enjoy up to 25%<br>extra Robux!</h1>
+        </div>
+
+        <h2 class="subtitle">The bonus item we've chosen for you</h2>
+
+        <div class="card">
+            <div class="item-list">
+
+                <div class="item-row">
+                    <div class="left-info">
+                        <div class="current-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r1-current">24,000</span>
+                        </div>
+                        <div class="old-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r1-old">22,500</span>
+                        </div>
+                        <div class="more-badge" id="r1-extra">+1,500 more</div>
+                    </div>
+                    <button class="price-btn">$199.99</button>
+                </div>
+
+                <div class="item-row">
+                    <div class="left-info">
+                        <div class="current-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r2-current">11,000</span>
+                        </div>
+                        <div class="old-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r2-old">10,000</span>
+                        </div>
+                        <div class="more-badge" id="r2-extra">+1,000 more</div>
+                    </div>
+                    <button class="price-btn">$99.99</button>
+                </div>
+
+                <div class="item-row">
+                    <div class="left-info">
+                        <div class="current-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r3-current">5,250</span>
+                        </div>
+                        <div class="old-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r3-old">4,500</span>
+                        </div>
+                        <div class="more-badge" id="r3-extra">+750 more</div>
+                    </div>
+                    <button class="price-btn">$49.99</button>
+                </div>
+
+                <div class="item-row">
+                    <div class="left-info">
+                        <div class="current-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r4-current">3,625</span>
+                        </div>
+                        <div class="old-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r4-old">3,150</span>
+                        </div>
+                        <div class="more-badge" id="r4-extra">+475 more</div>
+                    </div>
+                    <button class="price-btn">$34.99</button>
+                </div>
+
+                <div class="item-row">
+                    <div class="left-info">
+                        <div class="current-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r5-current">2,000</span>
+                        </div>
+                        <div class="old-robux">
+                            <img class="robux-icon" alt="Robux">
+                            <span id="r5-old">1,700</span>
+                        </div>
+                        <div class="more-badge" id="r5-extra">+300 more</div>
+                    </div>
+                    <button class="price-btn">$19.99</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1 -->
+    <div class="send-modal-overlay" id="sendModalOverlay">
+        <div class="send-modal">
+            <div class="send-modal-header">
+                <div class="send-modal-title">
+                    <img class="send-modal-title-icon robux-icon" alt="">
+                    <span>Send Robux</span>
+                </div>
+                <div class="send-modal-right">
+                    <div class="send-modal-balance">
+                        <img class="robux-icon" alt="Robux">
+                        <span id="send-balance-val">0</span>
+                    </div>
+                    <button class="send-modal-close" id="sendModalClose">×</button>
+                </div>
+            </div>
+            <div class="send-modal-body">
+                <div class="send-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" placeholder="Search" id="sendSearchInput" autocomplete="off">
+                </div>
+                <div class="send-section-title" id="sendSectionTitle">My friends (0)</div>
+                <div class="send-user-list" id="sendUserList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2 -->
+    <div class="send-amount-overlay" id="sendAmountOverlay">
+        <div class="send-amount-modal">
+            <div class="send-amount-header">
+                <button class="send-amount-back" id="sendAmountBack" title="Back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path>
+                        <path d="M12 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <div class="send-amount-title">
+                    <img class="robux-icon" alt="">
+                    <span>Send Robux</span>
+                </div>
+                <div class="send-amount-right">
+                    <div class="send-amount-balance">
+                        <img class="robux-icon" alt="">
+                        <span id="amount-balance-val">0</span>
+                    </div>
+                    <button class="send-amount-close" id="sendAmountClose">×</button>
+                </div>
+            </div>
+
+            <div class="send-amount-body" id="sendAmountBody">
+                <div class="amount-user-avatar" id="amountUserAvatar"></div>
+                <div class="amount-username" id="amountUsername">—</div>
+
+                <div class="amount-display">
+                    <img class="robux-icon" alt="Robux">
+                    <input type="text" class="amount-display-value" id="amountValue" value="50" maxlength="10" autocomplete="off" inputmode="numeric">
+                </div>
+
+                <div class="amount-quick">
+                    <button class="amount-quick-btn" data-amount="25">
+                        <img class="robux-icon" alt="">25
+                    </button>
+                    <button class="amount-quick-btn active" data-amount="50">
+                        <img class="robux-icon" alt="">50
+                    </button>
+                    <button class="amount-quick-btn" data-amount="100">
+                        <img class="robux-icon" alt="">100
+                    </button>
+                    <button class="amount-quick-btn" data-amount="200">
+                        <img class="robux-icon" alt="">200
+                    </button>
+                </div>
+
+                <button class="amount-next-btn" id="amountNextBtn">Next</button>
+                <div class="amount-hint">Robux are sent instantly with no fees</div>
+            </div>
+
+            <div class="send-amount-loading" id="sendAmountLoading" style="display:none;">
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="loading-text">Sending...</div>
+            </div>
+
+            <div class="send-amount-success" id="sendAmountSuccess" style="display:none;">
+                <div class="success-icon">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="4 12 10 18 20 6"></polyline>
+                    </svg>
+                </div>
+                <div class="success-title">Success!</div>
+                <div class="success-subtitle" id="successSubtitle">Robux sent successfully</div>
+                <button class="success-btn" id="successDoneBtn">Done</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <span>Admin Panel</span>
+            <button class="admin-close" id="adminClose">×</button>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="logo">🖼️ Logo</button>
+            <button class="admin-tab" data-tab="amounts">💰 Amount</button>
+            <button class="admin-tab" data-tab="users">👥 Backup List</button>
+        </div>
+        <div class="admin-body">
+
+            <div class="admin-tab-content active" data-content="logo">
+                <label class="admin-label">Upload Robux Logo (PNG recommended)</label>
+                <input type="file" accept="image/*" id="logoFile" class="admin-file">
+                <label class="admin-label">Preview</label>
+                <img id="logoPreview" class="admin-preview" alt="Preview">
+                <div class="admin-btn-row">
+                    <button class="admin-action danger" id="resetLogo">Reset Logo</button>
+                </div>
+            </div>
+
+            <div class="admin-tab-content" data-content="amounts">
+                <label class="admin-label">Balance (enter as number, e.g. 1000000)</label>
+                <input type="text" class="admin-input" id="in-balance" placeholder="0">
+
+                <label class="admin-label">Row 1</label>
+                <div class="row-group">
+                    <input type="text" class="admin-input" id="in-r1-current" placeholder="New amount">
+                    <input type="text" class="admin-input" id="in-r1-old" placeholder="Old amount">
+                    <input type="text" class="admin-input full" id="in-r1-extra" placeholder="Bonus text">
+                </div>
+
+                <label class="admin-label">Row 2</label>
+                <div class="row-group">
+                    <input type="text" class="admin-input" id="in-r2-current" placeholder="New amount">
+                    <input type="text" class="admin-input" id="in-r2-old" placeholder="Old amount">
+                    <input type="text" class="admin-input full" id="in-r2-extra" placeholder="Bonus text">
+                </div>
+
+                <label class="admin-label">Row 3</label>
+                <div class="row-group">
+                    <input type="text" class="admin-input" id="in-r3-current" placeholder="New amount">
+                    <input type="text" class="admin-input" id="in-r3-old" placeholder="Old amount">
+                    <input type="text" class="admin-input full" id="in-r3-extra" placeholder="Bonus text">
+                </div>
+
+                <label class="admin-label">Row 4</label>
+                <div class="row-group">
+                    <input type="text" class="admin-input" id="in-r4-current" placeholder="New amount">
+                    <input type="text" class="admin-input" id="in-r4-old" placeholder="Old amount">
+                    <input type="text" class="admin-input full" id="in-r4-extra" placeholder="Bonus text">
+                </div>
+
+                <label class="admin-label">Row 5</label>
+                <div class="row-group">
+                    <input type="text" class="admin-input" id="in-r5-current" placeholder="New amount">
+                    <input type="text" class="admin-input" id="in-r5-old" placeholder="Old amount">
+                    <input type="text" class="admin-input full" id="in-r5-extra" placeholder="Bonus text">
+                </div>
+
+                <div class="admin-btn-row">
+                    <button class="admin-action danger" id="resetAmounts">Reset All</button>
+                </div>
+            </div>
+
+            <div class="admin-tab-content" data-content="users">
+                <label class="admin-label">Add Backup User</label>
+                <input type="text" class="admin-input" id="newUserName" placeholder="Username">
+                <label class="admin-label">Avatar (optional)</label>
+                <input type="file" accept="image/*" id="newUserAvatar" class="admin-file">
+                <div class="admin-btn-row">
+                    <button class="admin-action success" id="addUserBtn">+ Add User</button>
+                </div>
+
+                <label class="admin-label" style="margin-top:20px;">Saved Users</label>
+                <div id="adminUserList"></div>
+
+                <div class="admin-btn-row">
+                    <button class="admin-action danger" id="clearUsersBtn">Delete All Users</button>
+                </div>
+            </div>
+
+        </div>
+        <div class="admin-hint">Panel: Alt + P to open/close</div>
+    </div>
+
+<script>
+    /* ========== DEFAULT VALUES ========== */
+    const defaultSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5' fill='none' stroke='white' stroke-width='10' stroke-linejoin='round'/><polygon points='50,20 83,37 83,63 50,80 17,63 17,37' fill='none' stroke='white' stroke-width='5' stroke-linejoin='round'/><rect x='38' y='38' width='24' height='24' fill='white'/></svg>";
+    const DEFAULT_LOGO = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(defaultSvg);
+
+    const DEFAULT_AMOUNTS = {
+        balance: "0",
+        r1_current: "24,000", r1_old: "22,500", r1_extra: "+1,500 more",
+        r2_current: "11,000", r2_old: "10,000", r2_extra: "+1,000 more",
+        r3_current: "5,250",  r3_old: "4,500",  r3_extra: "+750 more",
+        r4_current: "3,625",  r4_old: "3,150",  r4_extra: "+475 more",
+        r5_current: "2,000",  r5_old: "1,700",  r5_extra: "+300 more"
+    };
+
+    const DEFAULT_USERS = [
+        { name: "Eloree7755", avatar: "" },
+        { name: "AllTdm01",   avatar: "" },
+        { name: "Nullhigh",   avatar: "" },
+        { name: "ShadowReign",avatar: "" },
+        { name: "ILoveS",     avatar: "" }
+    ];
+
+    const STORAGE_LOGO = "rbxLogo";
+    const STORAGE_AMOUNTS = "rbxAmounts";
+    const STORAGE_USERS = "rbxUsers";
+    const STORAGE_ALIAS_CACHE = "rbxAliasCache";
+
+    /* ========== MULTI PROXY ========== */
+    const PROXY_USERS_LIST = [
+        "https://users.roproxy.com",
+        "https://users.rotunnel.com"
+    ];
+    const PROXY_THUMBS_LIST = [
+        "https://thumbnails.roproxy.com",
+        "https://thumbnails.rotunnel.com"
+    ];
+    let currentUserProxyIdx = 0;
+    let currentThumbProxyIdx = 0;
+
+    function getUserProxy() { return PROXY_USERS_LIST[currentUserProxyIdx]; }
+    function getThumbProxy() { return PROXY_THUMBS_LIST[currentThumbProxyIdx]; }
+    function nextUserProxy() {
+        currentUserProxyIdx = (currentUserProxyIdx + 1) % PROXY_USERS_LIST.length;
+    }
+    function nextThumbProxy() {
+        currentThumbProxyIdx = (currentThumbProxyIdx + 1) % PROXY_THUMBS_LIST.length;
+    }
+
+    /* ========== NUMBER FORMAT ========== */
+    function formatNumber(n) {
+        n = Number(n) || 0;
+        if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+        if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+        return String(n);
+    }
+
+    function formatWithCommas(n) {
+        n = Number(n) || 0;
+        return n.toLocaleString('en-US');
+    }
+
+    /* ========== BALANCE ========== */
+    function getBalance() {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_AMOUNTS) || "{}");
+        const b = saved.balance !== undefined ? saved.balance : DEFAULT_AMOUNTS.balance;
+        return parseAmount(b);
+    }
+    function setBalance(n) {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_AMOUNTS) || "{}");
+        saved.balance = String(Math.max(0, Math.floor(n)));
+        localStorage.setItem(STORAGE_AMOUNTS, JSON.stringify(saved));
+        applyAmounts();
+    }
+    function parseAmount(val) {
+        if (typeof val === "number") return val;
+        if (val === null || val === undefined) return 0;
+        const s = String(val).trim().replace(/,/g, '');
+        const m = s.match(/^([\d.]+)\s*([KkMmBb])?$/);
+        if (!m) return 0;
+        let n = parseFloat(m[1]) || 0;
+        const suffix = (m[2] || "").toUpperCase();
+        if (suffix === "K") n *= 1e3;
+        else if (suffix === "M") n *= 1e6;
+        else if (suffix === "B") n *= 1e9;
+        return Math.floor(n);
+    }
+
+    /* ========== LOGO ========== */
+    function applyLogo() {
+        const logo = localStorage.getItem(STORAGE_LOGO) || DEFAULT_LOGO;
+        document.querySelectorAll('.robux-icon').forEach(img => img.src = logo);
+        const preview = document.getElementById('logoPreview');
+        if (preview) preview.src = logo;
+    }
+
+    /* ========== AMOUNTS ========== */
+    function applyAmounts() {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_AMOUNTS) || "{}");
+        const a = { ...DEFAULT_AMOUNTS, ...saved };
+
+        const bal = getBalance();
+        const formatted = formatNumber(bal);
+        document.getElementById('balance-val').textContent = formatted;
+        const sbal = document.getElementById('send-balance-val');
+        if (sbal) sbal.textContent = formatted;
+        const abal = document.getElementById('amount-balance-val');
+        if (abal) abal.textContent = formatted;
+
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById(`r${i}-current`).textContent = a[`r${i}_current`];
+            document.getElementById(`r${i}-old`).textContent = a[`r${i}_old`];
+            document.getElementById(`r${i}-extra`).textContent = a[`r${i}_extra`];
+        }
+
+        document.getElementById('in-balance').value = String(bal);
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById(`in-r${i}-current`).value = a[`r${i}_current`];
+            document.getElementById(`in-r${i}-old`).value = a[`r${i}_old`];
+            document.getElementById(`in-r${i}-extra`).value = a[`r${i}_extra`];
+        }
+    }
+
+    /* ========== USERS (BACKUP) ========== */
+    function getUsers() {
+        const saved = localStorage.getItem(STORAGE_USERS);
+        if (saved === null) return [...DEFAULT_USERS];
+        try {
+            const arr = JSON.parse(saved);
+            return Array.isArray(arr) ? arr : [...DEFAULT_USERS];
+        } catch { return [...DEFAULT_USERS]; }
+    }
+    function saveUsers(users) { localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); }
+
+    /* ========== ALIAS CACHE ========== */
+    function getAliasCache() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_ALIAS_CACHE) || "{}"); }
+        catch { return {}; }
+    }
+    function saveAliasCache(cache) {
+        try { localStorage.setItem(STORAGE_ALIAS_CACHE, JSON.stringify(cache)); } catch {}
+    }
+    function searchAliasCache(query) {
+        const cache = getAliasCache();
+        const q = query.toLowerCase();
+        const results = [];
+        const seen = new Set();
+        for (const [alias, user] of Object.entries(cache)) {
+            if (alias.includes(q)) {
+                const key = user.id || user.username || user.name;
+                if (!seen.has(key)) { seen.add(key); results.push(user); }
+            }
+        }
+        return results;
+    }
+    async function fetchUsernameHistory(userId) {
+        try {
+            const res = await fetch(`${getUserProxy()}/v1/users/${userId}/username-history`);
+            if (!res.ok) return [];
+            const data = await res.json();
+            return (data.data || []).map(h => h.name);
+        } catch { return []; }
+    }
+    async function cacheUserAliases(user) {
+        if (!user.id) return;
+        const cache = getAliasCache();
+        if (user.username) cache[user.username.toLowerCase()] = user;
+        if (user.name)     cache[user.name.toLowerCase()]     = user;
+        const history = await fetchUsernameHistory(user.id);
+        for (const oldName of history) cache[oldName.toLowerCase()] = user;
+        saveAliasCache(cache);
+    }
+
+    /* ========== MODAL 1 ========== */
+    const overlay = document.getElementById('sendModalOverlay');
+    const searchInput = document.getElementById('sendSearchInput');
+    const sectionTitle = document.getElementById('sendSectionTitle');
+    const userList = document.getElementById('sendUserList');
+
+    function avatarHTML(user, cls) {
+        if (user.avatar) return `<div class="${cls}"><img src="${user.avatar}" alt=""></div>`;
+        const letter = (user.name || "?").charAt(0).toUpperCase();
+        return `<div class="${cls}">${letter}</div>`;
+    }
+
+    function searchLocalUsers(query) {
+        const allUsers = getUsers();
+        const matches = allUsers.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+        return matches.map(u => ({ name: u.name, username: u.name, avatar: u.avatar, id: null }));
+    }
+
+    async function searchRobloxUsers(query) {
+        const searchUrl = `${getUserProxy()}/v1/users/search?keyword=${encodeURIComponent(query)}&limit=10`;
+        const searchRes = await fetch(searchUrl);
+        if (!searchRes.ok) throw new Error("Search API error: " + searchRes.status);
+        const searchData = await searchRes.json();
+        const users = searchData.data || [];
+        if (users.length === 0) return [];
+
+        const ids = users.map(u => u.id).join(",");
+        const avatarUrl = `${getThumbProxy()}/v1/users/avatar-headshot?userIds=${ids}&size=150x150&format=Png&isCircular=true`;
+        let avatarMap = {};
+        try {
+            const avatarRes = await fetch(avatarUrl);
+            if (avatarRes.ok) {
+                const avatarData = await avatarRes.json();
+                if (avatarData.data) {
+                    avatarData.data.forEach(item => { avatarMap[item.targetId] = item.imageUrl; });
+                }
+            }
+        } catch (e) { console.warn("Avatar error:", e); }
+
+        return users.map(u => ({
+            name: u.displayName || u.name,
+            username: u.name,
+            avatar: avatarMap[u.id] || "",
+            id: u.id
+        }));
+    }
+
+    async function renderUserList() {
+        const query = searchInput.value.trim();
+
+        if (!query) {
+            sectionTitle.textContent = "My friends (0)";
+            userList.innerHTML = `<div class="send-empty">You don't have any friends yet</div>`;
+            return;
+        }
+
+        sectionTitle.textContent = "Searching...";
+        userList.innerHTML = `<div class="send-spinner"></div>`;
+
+        const cached = searchAliasCache(query);
+
+        let apiResults = [];
+        let apiSuccess = false;
+
+        for (let i = 0; i < PROXY_USERS_LIST.length; i++) {
+            try {
+                apiResults = await searchRobloxUsers(query);
+                apiSuccess = true;
+                break;
+            } catch (err) {
+                console.warn(`Proxy ${i} failed:`, err);
+                nextUserProxy();
+                nextThumbProxy();
+            }
+        }
+
+        if (!apiSuccess && cached.length === 0) {
+            apiResults = searchLocalUsers(query);
+        }
+
+        const seen = new Set();
+        const all = [];
+        for (const u of [...apiResults, ...cached]) {
+            const key = u.id || u.username || u.name;
+            if (!seen.has(key)) { seen.add(key); all.push(u); }
+        }
+
+        apiResults.forEach(u => { if (u.id) cacheUserAliases(u); });
+
+        if (all.length === 0) {
+            sectionTitle.textContent = `Results (0)`;
+            userList.innerHTML = `<div class="send-empty">No results found</div>`;
+            return;
+        }
+
+        sectionTitle.textContent = `Results (${all.length})`;
+
+        userList.innerHTML = all.map(u => {
+            const initial = (u.name || "?").charAt(0).toUpperCase();
+            const avatarInner = u.avatar
+                ? `<img src="${u.avatar}" alt="" onerror="this.parentElement.textContent='${initial}'">`
+                : initial;
+            const displayName = u.name;
+            const avatarData = u.avatar || "";
+            return `
+                <div class="send-user" data-name="${displayName}" data-avatar="${avatarData}">
+                    <div class="send-user-avatar">${avatarInner}</div>
+                    <div class="send-user-name">${displayName}</div>
+                </div>
+            `;
+        }).join('');
+
+        userList.querySelectorAll('.send-user').forEach(el => {
+            el.addEventListener('click', () => {
+                const name = el.dataset.name;
+                const avatar = el.dataset.avatar;
+                closeSendModal();
+                openAmountModal(name, avatar);
+            });
+        });
+    }
+
+    function openSendModal() {
+        overlay.classList.add('open');
+        searchInput.value = "";
+        renderUserList();
+        setTimeout(() => searchInput.focus(), 100);
+    }
+    function closeSendModal() { overlay.classList.remove('open'); }
+
+    document.getElementById('sendBtn').addEventListener('click', openSendModal);
+    document.getElementById('sendModalClose').addEventListener('click', closeSendModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSendModal(); });
+
+    let searchTimeout;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        const val = searchInput.value.trim();
+        if (!val) { renderUserList(); return; }
+        searchTimeout = setTimeout(renderUserList, 400);
+    });
+
+    /* ========== MODAL 2 ========== */
+    const amountOverlay = document.getElementById('sendAmountOverlay');
+    const amountBody = document.getElementById('sendAmountBody');
+    const amountLoading = document.getElementById('sendAmountLoading');
+    const amountSuccess = document.getElementById('sendAmountSuccess');
+    const amountUserAvatar = document.getElementById('amountUserAvatar');
+    const amountUsername = document.getElementById('amountUsername');
+    const amountValueEl = document.getElementById('amountValue');
+    const successSubtitle = document.getElementById('successSubtitle');
+
+    let currentAmount = 50;
+    let currentUserName = "";
+    let currentUserAvatar = "";
+    let isSending = false;
+
+    function openAmountModal(name, avatar) {
+        currentUserName = name;
+        currentUserAvatar = avatar || "";
+        currentAmount = 50;
+        isSending = false;
+
+        if (avatar) {
+            amountUserAvatar.innerHTML = `<img src="${avatar}" alt="" onerror="this.parentElement.textContent='${(name || '?').charAt(0).toUpperCase()}'">`;
+        } else {
+            amountUserAvatar.textContent = (name || "?").charAt(0).toUpperCase();
+        }
+        amountUsername.textContent = name;
+
+        amountValueEl.value = "50";
+        document.querySelectorAll('.amount-quick-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.amount === "50");
+        });
+
+        amountBody.style.display = "flex";
+        amountLoading.style.display = "none";
+        amountSuccess.style.display = "none";
+
+        amountOverlay.classList.add('open');
+    }
+
+    function closeAmountModal() {
+        amountOverlay.classList.remove('open');
+    }
+
+    document.querySelectorAll('.amount-quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentAmount = parseInt(btn.dataset.amount);
+            amountValueEl.value = currentAmount;
+            document.querySelectorAll('.amount-quick-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    amountValueEl.addEventListener('input', () => {
+        let v = amountValueEl.value.replace(/[^0-9]/g, '');
+        if (v.length > 10) v = v.slice(0, 10);
+        amountValueEl.value = v;
+        currentAmount = parseInt(v) || 0;
+        document.querySelectorAll('.amount-quick-btn').forEach(b => b.classList.remove('active'));
+    });
+
+    amountValueEl.addEventListener('focus', () => {
+        amountValueEl.select();
+    });
+
+    document.getElementById('amountNextBtn').addEventListener('click', () => {
+        if (isSending) return;
+        const amt = parseInt(amountValueEl.value) || 0;
+
+        if (amt < 1) { alert("Please enter a valid amount"); return; }
+        if (amt > getBalance()) { alert("Not enough Robux"); return; }
+        currentAmount = amt;
+        isSending = true;
+
+        amountBody.style.display = "none";
+        amountLoading.style.display = "flex";
+        amountSuccess.style.display = "none";
+
+        setTimeout(() => {
+            amountLoading.style.display = "none";
+            amountSuccess.style.display = "flex";
+            successSubtitle.textContent = `${formatWithCommas(currentAmount)} Robux sent to ${currentUserName}`;
+            setBalance(getBalance() - currentAmount);
+            isSending = false;
+        }, 1600);
+    });
+
+    document.getElementById('successDoneBtn').addEventListener('click', closeAmountModal);
+    document.getElementById('sendAmountBack').addEventListener('click', () => {
+        closeAmountModal();
+        openSendModal();
+    });
+    document.getElementById('sendAmountClose').addEventListener('click', closeAmountModal);
+    amountOverlay.addEventListener('click', (e) => {
+        if (e.target === amountOverlay) closeAmountModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (amountOverlay.classList.contains('open')) closeAmountModal();
+            else if (overlay.classList.contains('open')) closeSendModal();
+        }
+    });
+
+    /* ========== ADMIN ========== */
+    const panel = document.getElementById('adminPanel');
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.key === 'p' || e.key === 'P' || e.code === 'KeyP')) {
+            e.preventDefault();
+            panel.classList.toggle('open');
+        }
+    });
+    document.getElementById('adminClose').addEventListener('click', () => {
+        panel.classList.remove('open');
+    });
+
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
+        });
+    });
+
+    document.getElementById('logoFile').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                localStorage.setItem(STORAGE_LOGO, ev.target.result);
+                applyLogo();
+            } catch { alert("Image too large!"); }
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('resetLogo').addEventListener('click', () => {
+        if (!confirm("Reset logo?")) return;
+        localStorage.removeItem(STORAGE_LOGO);
+        document.getElementById('logoFile').value = "";
+        applyLogo();
+    });
+
+    function bindAmountInput(id, key) {
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.addEventListener('input', () => {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_AMOUNTS) || "{}");
+            saved[key] = input.value;
+            localStorage.setItem(STORAGE_AMOUNTS, JSON.stringify(saved));
+            applyAmounts();
+        });
+    }
+    bindAmountInput('in-balance', 'balance');
+    for (let i = 1; i <= 5; i++) {
+        bindAmountInput(`in-r${i}-current`, `r${i}_current`);
+        bindAmountInput(`in-r${i}-old`, `r${i}_old`);
+        bindAmountInput(`in-r${i}-extra`, `r${i}_extra`);
+    }
+
+    document.getElementById('resetAmounts').addEventListener('click', () => {
+        if (!confirm("Reset all amounts?")) return;
+        localStorage.removeItem(STORAGE_AMOUNTS);
+        applyAmounts();
+    });
+
+    let pendingAvatarData = "";
+    document.getElementById('newUserAvatar').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) { pendingAvatarData = ""; return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => { pendingAvatarData = ev.target.result; };
+        reader.readAsDataURL(file);
+    });
+
+    function renderAdminUsers() {
+        const users = getUsers();
+        const list = document.getElementById('adminUserList');
+        if (users.length === 0) {
+            list.innerHTML = `<div style="color:#666;font-size:12px;padding:8px 0;">No users yet.</div>`;
+            return;
+        }
+        list.innerHTML = users.map((u, i) => `
+            <div class="admin-user-item">
+                ${avatarHTML(u, 'admin-user-avatar')}
+                <div class="admin-user-name">${u.name}</div>
+                <button class="admin-user-del" data-index="${i}" title="Delete">✕</button>
+            </div>
+        `).join('');
+
+        list.querySelectorAll('.admin-user-del').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.index);
+                const users = getUsers();
+                users.splice(idx, 1);
+                saveUsers(users);
+                renderAdminUsers();
+            });
+        });
+    }
+
+    document.getElementById('addUserBtn').addEventListener('click', () => {
+        const nameInput = document.getElementById('newUserName');
+        const name = nameInput.value.trim();
+        if (!name) { alert("Username cannot be empty."); return; }
+        const users = getUsers();
+        users.push({ name: name, avatar: pendingAvatarData });
+        saveUsers(users);
+        nameInput.value = "";
+        document.getElementById('newUserAvatar').value = "";
+        pendingAvatarData = "";
+        renderAdminUsers();
+    });
+
+    document.getElementById('clearUsersBtn').addEventListener('click', () => {
+        if (!confirm("Delete all users?")) return;
+        saveUsers([]);
+        renderAdminUsers();
+    });
+
+    /* ========== INIT ========== */
+    applyLogo();
+    applyAmounts();
+    renderAdminUsers();
+    renderUserList();
+</script>
+
+</body>
+</html>
